@@ -1,7 +1,3 @@
-"""
-Railway Main App - Backend + Frontend
-"""
-
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from datetime import datetime
@@ -9,6 +5,11 @@ import pandas as pd
 import numpy as np
 import secrets
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_folder='.')
 CORS(app)
@@ -19,6 +20,7 @@ GLOBAL_DATA = {}
 @app.route('/')
 def index():
     """Serve frontend"""
+    logger.info("Serving frontend")
     return send_from_directory('.', 'dashboard_simple.html')
 
 @app.route('/<path:filename>')
@@ -28,14 +30,23 @@ def static_files(filename):
 
 @app.route('/health')
 def health():
-    return jsonify({'status': 'healthy', 'service': 'Garuda Analytics API'})
+    """Health check endpoint"""
+    logger.info("Health check accessed")
+    return jsonify({
+        'status': 'healthy', 
+        'service': 'Garuda Analytics API',
+        'timestamp': datetime.utcnow().isoformat()
+    })
 
 @app.route('/login', methods=['POST'])
 def login():
+    logger.info("Login attempt")
     data = request.get_json()
     if data.get('username') == 'admin' and data.get('password') == 'admin123':
         token = f"dev_token_admin_{secrets.token_hex(8)}"
+        logger.info("Login successful")
         return jsonify({'success': True, 'token': token})
+    logger.warning("Login failed")
     return jsonify({'success': False, 'message': 'Invalid credentials'})
 
 @app.route('/upload', methods=['POST'])
@@ -57,8 +68,10 @@ def upload():
             'missing_values': df.isnull().sum().to_dict()
         }
         GLOBAL_DATA[token] = {'analysis': analysis, 'filename': file.filename}
+        logger.info(f"File uploaded: {file.filename}")
         return jsonify({'success': True, 'message': 'Uploaded', 'analysis': analysis})
     except Exception as e:
+        logger.error(f"Upload error: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/api/data-info', methods=['GET'])
@@ -70,4 +83,5 @@ def get_data_info():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
+    logger.info(f"Starting app on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
