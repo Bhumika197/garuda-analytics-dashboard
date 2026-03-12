@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garuda Analytics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .nav-link {
+            padding: 8px 16px;
+            text-decoration: none;
+            color: #333;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2563eb;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Page -->
+        <div id="loginPage">
+            <div class="header text-center">
+                <h1>🦅 Garuda Analytics Dashboard</h1>
+                <p>Sign in to access your analytics dashboard</p>
+            </div>
+            
+            <div class="card">
+                <h2>Login</h2>
+                <div id="loginError" class="alert alert-error hidden"></div>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" id="username" class="form-input" value="admin" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="password" class="form-input" value="admin123" required>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="loginBtn">
+                        <span id="loginBtnText">Sign In</span>
+                    </button>
+                </form>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                    <h4>Demo Credentials:</h4>
+                    <p><strong>Username:</strong> admin</p>
+                    <p><strong>Password:</strong> admin123</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard -->
+        <div id="dashboardPage" class="hidden">
+            <div class="nav">
+                <div>
+                    <h1>🦅 Garuda Analytics</h1>
+                </div>
+                <div class="nav-links">
+                    <a href="#" class="nav-link active" data-page="dashboard">Dashboard</a>
+                    <a href="#" class="nav-link" data-page="upload">Upload Data</a>
+                    <button class="btn btn-secondary" onclick="logout()">Logout</button>
+                </div>
+            </div>
+            
+            <!-- Dashboard Content -->
+            <div id="dashboardContent">
+                <div class="card">
+                    <h2>Data Overview</h2>
+                    <div id="dashboardError" class="alert alert-error hidden"></div>
+                    <div id="dashboardInfo" class="hidden">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-number" id="rowCount">0</div>
+                                <div class="stat-label">Total Rows</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="colCount">0</div>
+                                <div class="stat-label">Total Columns</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number" id="numericCount">0</div>
+                                <div class="stat-label">Numeric Columns</div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-3">
+                            <div>
+                                <h4>Numeric Columns</h4>
+                                <div id="numericColumns" style="background: #f8f9fa; padding: 10px; border-radius: 5px; min-height: 100px;"></div>
+                            </div>
+                            <div>
+                                <h4>Categorical Columns</h4>
+                                <div id="categoricalColumns" style="background: #f8f9fa; padding: 10px; border-radius: 5px; min-height: 100px;"></div>
+                            </div>
+                            <div>
+                                <h4>Missing Values</h4>
+                                <div id="missingValues" style="background: #f8f9fa; padding: 10px; border-radius: 5px; min-height: 100px; font-size: 0.9em;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="noDataMessage" class="text-center" style="padding: 40px;">
+                        <h3>No Data Available</h3>
+                        <p>Please upload a CSV file to start analyzing your data</p>
+                        <button class="btn" onclick="showUploadPage()">Upload Dataset</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Upload Content -->
+            <div id="uploadContent" class="hidden">
+                <div class="card">
+                    <h2>Upload Dataset</h2>
+                    <div id="uploadError" class="alert alert-error hidden"></div>
+                    <div id="uploadSuccess" class="alert alert-success hidden"></div>
+                    
+                    <div style="border: 2px dashed #ddd; border-radius: 5px; padding: 40px; text-align: center; margin: 20px 0;">
+                        <div style="font-size: 3em; margin-bottom: 20px;">📁</div>
+                        <input type="file" id="csvFile" accept=".csv" style="display: none;">
+                        <button class="btn" onclick="document.getElementById('csvFile').click()">Choose CSV File</button>
+                        <p style="margin-top: 10px; color: #666;">or drag and drop your CSV file here</p>
+                    </div>
+                    
+                    <div id="fileInfo" class="hidden" style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <h4>Selected File:</h4>
+                        <p id="fileName"></p>
+                        <p id="fileSize"></p>
+                        <button class="btn" onclick="uploadFile()" id="uploadBtn">Upload File</button>
+                        <button class="btn btn-secondary" onclick="clearFile()">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        let authToken = '';
+        
+        // API Helper
+        async function apiCall(method, endpoint, data = null) {
+            try {
+                const config = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                // Get fresh token
+                authToken = localStorage.getItem('garuda_token');
+                
+                if (authToken) {
+                    config.headers.Authorization = `Bearer ${authToken}`;
+                }
+                
+                if (data && method !== 'GET') {
+                    if (data instanceof FormData) {
+                        config.body = data;
+                        delete config.headers['Content-Type'];
+                    } else {
+                        config.body = JSON.stringify(data);
+                    }
+                }
+                
+                const response = await fetch(API_BASE + endpoint, config);
+                const result = await response.json();
+                
+                // Handle token errors
+                if (response.status === 401) {
+                    localStorage.removeItem('garuda_token');
+                    localStorage.removeItem('garuda_user');
+                    document.getElementById('loginPage').classList.remove('hidden');
+                    document.getElementById('dashboardPage').classList.add('hidden');
+                    throw new Error('Session expired. Please login again.');
+                }
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'Request failed');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+        
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            const btn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('loginBtnText');
+            
+            errorDiv.classList.add('hidden');
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="loading"></span> Signing in...';
+            
+            try {
+                const result = await apiCall('POST', '/login', { username, password });
+                
+                if (result.success) {
+                    authToken = result.token;
+                    localStorage.setItem('garuda_token', authToken);
+                    localStorage.setItem('garuda_user', JSON.stringify({ username }));
+                    showDashboard();
+                } else {
+                    throw new Error(result.message || 'Login failed');
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Sign In';
+            }
+        });
+        
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = e.target.dataset.page;
+                
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                if (page === 'dashboard') {
+                    showDashboardContent();
+                } else if (page === 'upload') {
+                    showUploadContent();
+                }
+            });
+        });
+        
+        // Show Dashboard
+        function showDashboard() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.remove('hidden');
+            
+            // Debug: Show token status
+            console.log('Current token:', localStorage.getItem('garuda_token'));
+            
+            // Load dashboard directly (backend will handle token validation)
+            showDashboardContent();
+        }
+        
+        function showDashboardContent() {
+            document.getElementById('dashboardContent').classList.remove('hidden');
+            document.getElementById('uploadContent').classList.add('hidden');
+            loadDashboardData();
+        }
+        
+        function showUploadContent() {
+            document.getElementById('dashboardContent').classList.add('hidden');
+            document.getElementById('uploadContent').classList.remove('hidden');
+        }
+        
+        function showUploadPage() {
+            document.querySelector('[data-page="upload"]').click();
+        }
+        
+        // Load Dashboard Data
+        async function loadDashboardData() {
+            const errorDiv = document.getElementById('dashboardError');
+            const infoDiv = document.getElementById('dashboardInfo');
+            const noDataDiv = document.getElementById('noDataMessage');
+            
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const result = await apiCall('GET', '/api/data-info');
+                
+                if (result.success) {
+                    const data = result.data_info;
+                    
+                    // Update stats
+                    document.getElementById('rowCount').textContent = data.basic_info?.rows || 0;
+                    document.getElementById('colCount').textContent = data.basic_info?.columns || 0;
+                    document.getElementById('numericCount').textContent = data.numeric_columns?.length || 0;
+                    
+                    // Update columns
+                    const numericDiv = document.getElementById('numericColumns');
+                    numericDiv.innerHTML = data.numeric_columns?.map(col => `<div>• ${col}</div>`).join('') || '<div style="color: #666;">No numeric columns</div>';
+                    
+                    const catDiv = document.getElementById('categoricalColumns');
+                    catDiv.innerHTML = data.categorical_columns?.map(col => `<div>• ${col}</div>`).join('') || '<div style="color: #666;">No categorical columns</div>';
+                    
+                    const missingDiv = document.getElementById('missingValues');
+                    const missing = data.missing_values || {};
+                    missingDiv.innerHTML = Object.entries(missing).map(([col, count]) => 
+                        `<div>${col}: ${count}</div>`
+                    ).join('') || '<div style="color: #666;">No missing values</div>';
+                    
+                    infoDiv.classList.remove('hidden');
+                    noDataDiv.classList.add('hidden');
+                } else {
+                    throw new Error(result.message || 'Failed to load data');
+                }
+            } catch (error) {
+                console.error('Dashboard load error:', error);
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+                infoDiv.classList.add('hidden');
+                noDataDiv.classList.remove('hidden');
+            }
+        }
+        
+        // File Upload
+        document.getElementById('csvFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = `${(file.size / 1024).toFixed(2)} KB`;
+                document.getElementById('fileInfo').classList.remove('hidden');
+            }
+        });
+        
+        async function uploadFile() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            const errorDiv = document.getElementById('uploadError');
+            const successDiv = document.getElementById('uploadSuccess');
+            const btn = document.getElementById('uploadBtn');
+            
+            errorDiv.classList.add('hidden');
+            successDiv.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Uploading...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const result = await apiCall('POST', '/upload', formData);
+                
+                if (result.success) {
+                    successDiv.innerHTML = `
+                        <h4>Upload Successful!</h4>
+                        <p>${result.message}</p>
+                        <p>Redirecting to dashboard...</p>
+                    `;
+                    successDiv.classList.remove('hidden');
+                    
+                    // Force redirect after 2 seconds
+                    setTimeout(() => {
+                        showDashboardContent();
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || 'Upload failed');
+                }
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Upload File';
+            }
+        }
+        
+        function clearFile() {
+            document.getElementById('csvFile').value = '';
+            document.getElementById('fileInfo').classList.add('hidden');
+            document.getElementById('uploadError').classList.add('hidden');
+            document.getElementById('uploadSuccess').classList.add('hidden');
+        }
+        
+        // Logout
+        function logout() {
+            authToken = '';
+            localStorage.removeItem('garuda_token');
+            localStorage.removeItem('garuda_user');
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('dashboardPage').classList.add('hidden');
+        }
+        
+        // Check authentication on load
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('garuda_token');
+            if (token) {
+                authToken = token;
+                showDashboard();
+            }
+        });
+    </script>
+</body>
+</html>

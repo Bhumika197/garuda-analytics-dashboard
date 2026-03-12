@@ -1,0 +1,27 @@
+# Garuda Analytics Dashboard - Backend Dependencies
+# Required Python packages for the Flask API server
+
+# Web Framework
+Flask==2.3.3
+Flask-CORS==4.0.0
+
+# Database
+psycopg2-binary==2.9.9
+
+# Data Processing
+pandas==2.0.3
+numpy==1.24.3
+
+# Machine Learning
+scikit-learn==1.3.0
+
+# Authentication
+PyJWT==2.8.0
+
+# Utilities
+python-dotenv==1.0.0
+Werkzeug==2.3.7
+
+# Development and Testing
+pytest==7.4.2
+pytest-flask==1.2.0

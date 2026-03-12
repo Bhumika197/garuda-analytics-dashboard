@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Test</title>
+</head>
+<body>
+    <h1>Upload Test</h1>
+    <input type="file" id="csvFile" accept=".csv">
+    <button onclick="testUpload()">Test Upload</button>
+    <div id="result"></div>
+
+    <script>
+        async function testUpload() {
+            const file = document.getElementById('csvFile').files[0];
+            if (!file) {
+                alert('Please select a file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // First login to get token
+                const loginResponse = await fetch('http://localhost:5000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                const loginData = await loginResponse.json();
+                
+                if (loginData.success) {
+                    // Now upload file
+                    const uploadResponse = await fetch('http://localhost:5000/upload', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${loginData.token}` },
+                        body: formData
+                    });
+                    const uploadData = await uploadResponse.json();
+                    
+                    document.getElementById('result').innerHTML = `
+                        <h3>Upload Result:</h3>
+                        <pre>${JSON.stringify(uploadData, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <h3>Error:</h3>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
