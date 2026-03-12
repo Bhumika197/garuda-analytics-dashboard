@@ -4,8 +4,11 @@ services:
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn wsgi:app
     healthCheckPath: /health
+    healthCheckTimeout: 30
+    restartPolicyType: ON_FAILURE
+    restartPolicyMaxRetries: 10
     envVars:
       - key: PORT
         value: 5000
